@@ -6,6 +6,7 @@
 
 import edu.princeton.cs.algs4.Bag;
 import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.DirectedCycle;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.ST;
 
@@ -95,6 +96,12 @@ public class WordNet {
                 _graph.addEdge(rootIndex, vertex);
            }
        }
+       
+       DirectedCycle cycleDetector = new DirectedCycle(_graph);
+       if (cycleDetector.hasCycle())
+       {
+           throw new IllegalArgumentException("The input is not a rooted DAG");
+       }
    }
 
    // returns all WordNet nouns
@@ -120,6 +127,10 @@ public class WordNet {
        {
            throw new NullPointerException();
        }
+       else if (!_snouns.contains(nounA) || !_snouns.contains(nounB))
+       {
+           throw new IllegalArgumentException("nounA or nounB is not in Digraph");
+       }
               
        SAP sap = new SAP(_graph);
        int distance = -1;
@@ -137,6 +148,10 @@ public class WordNet {
        if (nounA == null || nounB == null)
        {
            throw new NullPointerException();
+       }
+       else if (!_snouns.contains(nounA) || !_snouns.contains(nounB))
+       {
+           throw new IllegalArgumentException("nounA or nounB is not in Digraph");
        }
               
         String result = new String();
