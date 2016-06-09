@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package wordnet;
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
@@ -13,7 +12,7 @@ import edu.princeton.cs.algs4.StdOut;
  * @author REDRADIST
  */
 public class Outcast {
-    WordNet _wordnet;
+   private final WordNet _wordnet;
    public Outcast(WordNet wordnet)         // constructor takes a WordNet object
    {
        _wordnet = wordnet;

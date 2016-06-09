@@ -3,9 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package wordnet;
+
 import edu.princeton.cs.algs4.Digraph;
-import edu.princeton.cs.algs4.DepthFirstDirectedPaths;
 import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdIn;
@@ -16,16 +15,16 @@ import edu.princeton.cs.algs4.StdOut;
  * @author REDRADIST
  */
 public class SAP {
-   int ancestor = -1;
-   int distance = -1;
+   private int ancestor = -1;
+   private int distance = -1;
    
-   int seq_ancestor = -1;
-   int seq_distance = -1;
-   Digraph diagraph;
+   private int seq_ancestor = -1;
+   private int seq_distance = -1;
+   private final Digraph diagraph;
    // constructor takes a digraph (not necessarily a DAG)
    public SAP(Digraph G)
    {
-       diagraph = G;
+       diagraph = new Digraph(G);
    }
 
    // length of shortest ancestral path between v and w; -1 if no such path
@@ -44,12 +43,9 @@ public class SAP {
                = new BreadthFirstDirectedPaths(diagraph, w);
        ancestor = -1;
        distance = -1;
-       if (v == 82086 && w == 27899)
-          StdOut.println("82086 and 27899 is found");
        for (int i = 0; i < diagraph.V(); i++)
        {
-           if ((v != i || w != i) && 
-               vpaths.hasPathTo(i) && wpaths.hasPathTo(i))
+           if (vpaths.hasPathTo(i) && wpaths.hasPathTo(i))
            {
                if (distance == -1 || 
                   (vpaths.distTo(i) + wpaths.distTo(i)) < distance)
