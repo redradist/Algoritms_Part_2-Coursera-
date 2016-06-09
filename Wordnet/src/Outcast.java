@@ -15,13 +15,21 @@ public class Outcast {
    private final WordNet _wordnet;
    public Outcast(WordNet wordnet)         // constructor takes a WordNet object
    {
+       if (wordnet == null)
+       {
+           throw new NullPointerException();
+       }
+       
        _wordnet = wordnet;
    }
    
    public String outcast(String[] nouns)   // given an array of WordNet nouns, return an outcast
    {
-       String check0 = null;
-       String check1 = null;
+       if (nouns == null)
+       {
+           throw new NullPointerException();
+       }
+       
        long[] distance = new long[nouns.length];
        int k = 0;
        for (String fnoun : nouns)

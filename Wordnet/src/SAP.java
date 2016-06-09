@@ -24,6 +24,10 @@ public class SAP {
    // constructor takes a digraph (not necessarily a DAG)
    public SAP(Digraph G)
    {
+       if (G == null)
+       {
+           throw new NullPointerException();
+       }
        diagraph = new Digraph(G);
    }
 
@@ -65,6 +69,7 @@ public class SAP {
        {
            throw new NullPointerException();
        }
+       
        ancestor(v, w);
        return seq_distance;
    }
@@ -76,6 +81,7 @@ public class SAP {
        {
            throw new NullPointerException();
        }
+       
        seq_ancestor = -1;
        seq_distance = -1;
        for (int _v : v)

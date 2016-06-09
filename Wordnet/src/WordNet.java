@@ -16,7 +16,7 @@ import edu.princeton.cs.algs4.ST;
 public class WordNet {
     private final Digraph                       _graph;
     private final ST<String, Bag<Integer>>      _snouns;
-    private final ST<Integer, Bag<String>>      _inouns;
+    private final ST<Integer, String>           _inouns;
     
     private void putString(String word, int index)
     {
@@ -34,25 +34,14 @@ public class WordNet {
         }
     }
     
-    private void putIndex(int index, String word)
-    {
-        if (_inouns.contains(index))
-        {
-           Bag<String> synonyms = _inouns.get(index);
-           synonyms.add(word);
-           _inouns.put(index, synonyms);
-        }
-        else
-        {
-           Bag<String> synonyms = new Bag<>();
-           synonyms.add(word);
-           _inouns.put(index, synonyms);
-        }
-    }
-    
    // constructor takes the name of the two input files
    public WordNet(String synsets, String hypernyms)
    {
+       if (synsets == null || hypernyms == null)
+       {
+           throw new NullPointerException();
+       }
+       
        In _synsets = new In(synsets);
        String[] synset_lines = _synsets.readAllLines();
        int synset_length = synset_lines.length;
@@ -64,6 +53,10 @@ public class WordNet {
                         line.substring(0, line.indexOf(',')));
            int startIndex = line.indexOf(',')+1;
            int endIndex = line.indexOf(',',startIndex);
+           
+           String words = line.substring(startIndex, endIndex);
+           _inouns.put(index, words);
+           
            String word;
            for (int newIndex = line.indexOf(' ',startIndex); 
                     newIndex < endIndex && newIndex >= 0;
@@ -71,11 +64,9 @@ public class WordNet {
                     newIndex = line.indexOf(' ',startIndex))
            {
                word = line.substring(startIndex, newIndex);
-               putIndex(index, word);
                putString(word, index);
            }
            word = line.substring(startIndex, endIndex);
-           putIndex(index, word);
            putString(word, index);
        }
        
@@ -115,12 +106,21 @@ public class WordNet {
    // is the word a WordNet noun?
    public boolean isNoun(String word)
    {
+       if (word == null)
+       {
+           throw new NullPointerException();
+       }
        return _snouns.contains(word);
    }
 
    // distance between nounA and nounB (defined below)
    public int distance(String nounA, String nounB)
    {
+       if (nounA == null || nounB == null)
+       {
+           throw new NullPointerException();
+       }
+              
        SAP sap = new SAP(_graph);
        int distance = -1;
        if (_snouns.get(nounA) != null && _snouns.get(nounB) != null)
@@ -134,6 +134,11 @@ public class WordNet {
    // in a shortest ancestral path (defined below)
    public String sap(String nounA, String nounB)
    {
+       if (nounA == null || nounB == null)
+       {
+           throw new NullPointerException();
+       }
+              
         String result = new String();
         SAP sap = new SAP(_graph);
         if (_snouns.get(nounA) != null && _snouns.get(nounB) != null)
@@ -142,17 +147,10 @@ public class WordNet {
             ancestor = sap.ancestor(_snouns.get(nounA), _snouns.get(nounB));
             if (ancestor != -1)
             {
-                for (String word : _inouns.get(ancestor))
-                {
-                    result += word;
-                }
+                result += _inouns.get(ancestor);
             }
-            return result;
         }
-        else
-        {
-            return result;
-        }
+        return result;
    }
 
    // do unit testing of this class
