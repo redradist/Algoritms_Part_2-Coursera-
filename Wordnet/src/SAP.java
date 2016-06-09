@@ -61,6 +61,10 @@ public class SAP {
    // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
    public int length(Iterable<Integer> v, Iterable<Integer> w)
    {
+       if (v == null || w == null)
+       {
+           throw new NullPointerException();
+       }
        ancestor(v, w);
        return seq_distance;
    }
@@ -68,6 +72,10 @@ public class SAP {
    // a common ancestor that participates in shortest ancestral path; -1 if no such path
    public int ancestor(Iterable<Integer> v, Iterable<Integer> w)
    {
+       if (v == null || w == null)
+       {
+           throw new NullPointerException();
+       }
        seq_ancestor = -1;
        seq_distance = -1;
        for (int _v : v)
