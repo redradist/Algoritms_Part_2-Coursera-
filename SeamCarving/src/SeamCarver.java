@@ -4,6 +4,7 @@ import edu.princeton.cs.algs4.IndexMinPQ;
 import edu.princeton.cs.algs4.Picture;
 import edu.princeton.cs.algs4.StdOut;
 import java.awt.Color;
+import java.util.ArrayList;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -16,25 +17,24 @@ import java.awt.Color;
  * @author REDRADIST
  */
 public class SeamCarver {
+    private enum Direction 
+    {
+        Horizontal,
+        Vertical
+    }
+    
+    private class RunTimeGraph
+    {
+        public double[] distTo = null;
+        public DirectedEdge[] edgeTo;
+
+        private RunTimeGraph() {
+            this.distTo = null;
+            this.edgeTo = null;
+        }
+    }
+    
    private Picture mPicture;
-   
-   private class Item {
-       public int          index;
-       public Item         next;
-
-        private Item() {
-            this.next = null;
-        }
-   }
-   
-   private class Way {
-       public double       distance;
-       public Item         start;
-
-        private Way() {
-            this.start = null;
-        }
-   }
    
    public SeamCarver(Picture picture)
    {
@@ -95,36 +95,79 @@ public class SeamCarver {
     return ydeltaBlue + ydeltaGreen + ydeltaRed;
    }
    
-   // relax edge e and update pq if changed
-    private DirectedEdge[] edgesYFrom(int vertex)
+    private RunTimeGraph computeGraph(Direction direct)
     {
         int sizeX = mPicture.width(); 
         int sizeY = mPicture.height();
-        DirectedEdge[] edges = new DirectedEdge[0];
+        int vertexes = sizeX * sizeY + 1;
+       
+        RunTimeGraph graph = new RunTimeGraph();
+        graph.distTo = new double[vertexes];
+        graph.edgeTo = new DirectedEdge[vertexes];
+        for (int v = 0; v < vertexes; v++)
+            graph.distTo[v] = Double.POSITIVE_INFINITY;
+        
+        int sizeTopItems = (direct == Direction.Horizontal) ? sizeY : sizeX;
+        // relax vertices in order of distance from s
+        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(vertexes);
+        for (int item = 0; item < sizeTopItems; ++item)
+        {
+            graph.distTo[item] = 0.0;
+            pq.insert(item, graph.distTo[item]);
+        }
+        while (!pq.isEmpty()) 
+        {
+            int v = pq.delMin();
+            for (DirectedEdge e : edgesFrom(v, direct))
+            {
+                if (e != null)
+                {
+                    int s = e.from();
+                    int i = e.to();
+                    if (graph.distTo[i] > graph.distTo[s] + e.weight()) {
+                        graph.distTo[i] = graph.distTo[s] + e.weight();
+                        graph.edgeTo[i] = e;
+                        if (pq.contains(i)) pq.decreaseKey(i, graph.distTo[i]);
+                        else                pq.insert(i, graph.distTo[i]);
+                    }
+                }
+            }
+        }
+        
+        return graph;
+    }
+   
+   // relax edge e and update pq if changed
+    private ArrayList<DirectedEdge> edgesFrom(int vertex, Direction direct)
+    {
+        int sizeX = mPicture.width(); 
+        int sizeY = mPicture.height();
+        ArrayList<DirectedEdge> edges = new ArrayList<>();
         if (vertex < sizeY * sizeX)
         {
-            if (vertex >= sizeY * (sizeX-1))
+            int widthRow = (direct == Direction.Horizontal) ? sizeY : sizeX ;
+            int penultRow = (direct == Direction.Horizontal) ? sizeX : sizeY ;
+            int relativeXIndex = (direct == Direction.Horizontal) ? 
+                                  vertex/widthRow : vertex%widthRow;
+            int relativeYIndex = (direct == Direction.Horizontal) ? 
+                                  vertex%widthRow : vertex/widthRow;
+            int energyXIndex = (direct == Direction.Horizontal) ? 
+                                sizeX-relativeXIndex-1 : relativeXIndex;
+            int energyYIndex = relativeYIndex;
+            double energy = energy(energyXIndex, energyYIndex);
+            if (vertex >= widthRow * (penultRow-1))
             {
-                edges = new DirectedEdge[1];
-                int relativeYIndex = vertex%sizeY;
-                int relativeXIndex = vertex/sizeY;
-                double energy = energy(sizeX-relativeXIndex-1, relativeYIndex);
-                edges[0] = new DirectedEdge(vertex, sizeX * sizeY, energy);
+                edges.add(new DirectedEdge(vertex, sizeX * sizeY, energy));
             }
             else 
             {
-              int relativeYIndex = vertex%sizeY;
-              int relativeXIndex = vertex/sizeY;
-              double energy = energy(sizeX-relativeXIndex-1, relativeYIndex);
-              int edgesNum = (relativeYIndex-1 >= 0 && relativeYIndex+1 < sizeY) ? 3 : 2;
-              edges = new DirectedEdge[edgesNum];
-
-              int i = 0;
-              if (relativeYIndex-1 >= 0)
-                  edges[i++] = new DirectedEdge(vertex, vertex+sizeY-1, energy);
-              if (relativeYIndex+1 < sizeY)
-                  edges[i++] = new DirectedEdge(vertex, vertex+sizeY+1, energy);
-              edges[i] = new DirectedEdge(vertex, vertex+sizeY, energy);
+              int checkIndex = (direct == Direction.Horizontal) ? 
+                                relativeYIndex : relativeXIndex;
+              if (checkIndex-1 >= 0)
+                  edges.add(new DirectedEdge(vertex, vertex+widthRow-1, energy));
+              if (checkIndex+1 < widthRow)
+                  edges.add(new DirectedEdge(vertex, vertex+widthRow+1, energy));
+              edges.add(new DirectedEdge(vertex, vertex+widthRow, energy));
             }
         }
         return edges;
@@ -134,150 +177,71 @@ public class SeamCarver {
    {
         int sizeX = mPicture.width(); 
         int sizeY = mPicture.height();
-        int vertexes = sizeX * sizeY + 1;
-       
-        double[] distTo = new double[vertexes];
-        DirectedEdge[] edgeTo = new DirectedEdge[vertexes];
-        for (int v = 0; v < vertexes; v++)
-            distTo[v] = Double.POSITIVE_INFINITY;
         
+        RunTimeGraph graph = computeGraph(Direction.Horizontal);
         int[] horizontalSeam = new int[sizeX];
-        double minDistance = Double.POSITIVE_INFINITY;
-        // relax vertices in order of distance from s
-        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(vertexes);
-        for (int y = sizeY-1; y >= 0; --y)
+        if (graph.distTo[sizeX * sizeY] < Double.POSITIVE_INFINITY)
         {
-            distTo[y] = 0.0;
-            pq.insert(y, distTo[y]);
-        }
-        while (!pq.isEmpty()) 
-        {
-            int v = pq.delMin();
-            for (DirectedEdge e : edgesYFrom(v))
-            {
-                if (e != null)
-                {
-                    int s = e.from();
-                    int i = e.to();
-                    if (distTo[i] > distTo[s] + e.weight()) {
-                        distTo[i] = distTo[s] + e.weight();
-                        edgeTo[i] = e;
-                        if (pq.contains(i)) pq.decreaseKey(i, distTo[i]);
-                        else                pq.insert(i, distTo[i]);
-                    }
-                }
-            }
-        }
-        
-        if (distTo[sizeX * sizeY] < minDistance)
-        {
-            minDistance = distTo[sizeX * sizeY];
             int i = 0;
-            for (DirectedEdge e = edgeTo[sizeX * sizeY]; e != null; e = edgeTo[e.from()]) {
-                if (e.from() != 0 && e.from() != sizeX * sizeY)
-                    horizontalSeam[i++] = e.from()%sizeY;
+            for (DirectedEdge e = graph.edgeTo[sizeX * sizeY]; e != null; e = graph.edgeTo[e.from()]) {
+                horizontalSeam[i++] = e.from()%sizeY;
             }
         }
         
-        if (sizeX > 1)
-        {
-            horizontalSeam[0] = horizontalSeam[1];
-            if (horizontalSeam[sizeX-2]+1 < sizeY)
-                horizontalSeam[sizeX-1] = horizontalSeam[sizeX-2]+1;
-        }
+        fixHorizontal(horizontalSeam);
         return horizontalSeam;
    }
    
-    // relax edge e and update pq if changed
-    private DirectedEdge[] edgesXFrom(int vertex)
-    {
+   private void fixHorizontal(int[] seam)
+   {
+       /*  
+        * Needed only for class.
+        * Meanless, 'cause all items on the board have a value of 1000.
+        */
         int sizeX = mPicture.width(); 
         int sizeY = mPicture.height();
-        DirectedEdge[] edges = new DirectedEdge[0];
-        if (vertex < sizeX * sizeY)
+        if (sizeX > 1)
         {
-            if (vertex >= sizeX * (sizeY-1))
-            {
-                edges = new DirectedEdge[1];
-                int relativeXIndex = vertex%sizeX;
-                int relativeYIndex = vertex/sizeX;
-                double energy = energy(relativeXIndex, relativeYIndex);
-                edges[0] = new DirectedEdge(vertex, sizeX * sizeY, energy);
-            }
-            else 
-            {
-              int relativeXIndex = vertex%sizeX;
-              int relativeYIndex = vertex/sizeX;
-              double energy = energy(relativeXIndex, relativeYIndex);
-              int edgesNum = (relativeXIndex-1 >= 0 && relativeXIndex+1 < sizeX) ? 3 : 2;
-              edges = new DirectedEdge[edgesNum];
-
-              int i = 0;
-              if (relativeXIndex-1 >= 0)
-                  edges[i++] = new DirectedEdge(vertex, vertex+sizeX-1, energy);
-              if (relativeXIndex+1 < sizeX)
-                  edges[i++] = new DirectedEdge(vertex, vertex+sizeX+1, energy);
-              edges[i] = new DirectedEdge(vertex, vertex+sizeX, energy);
-            }
+            seam[0] = seam[1];
+            if (seam[sizeX-2]+1 < sizeY)
+                seam[sizeX-1] = seam[sizeX-2]+1;
         }
-        return edges;
-    }
+   }
+   
+    
    
    public int[] findVerticalSeam()
    {
         int sizeX = mPicture.width(); 
         int sizeY = mPicture.height();
-        int vertexes = sizeX * sizeY + 1;
        
-        double[] distTo = new double[vertexes];
-        DirectedEdge[] edgeTo = new DirectedEdge[vertexes];
-        for (int v = 0; v < vertexes; v++)
-            distTo[v] = Double.POSITIVE_INFINITY;
-        
+        RunTimeGraph graph = computeGraph(Direction.Vertical);
         int[] verticalSeam = new int[sizeY];
-        double minDistance = Double.POSITIVE_INFINITY;
-        // relax vertices in order of distance from s
-        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(vertexes);
-        for (int x = sizeX-1; x >= 0; --x)
+        if (graph.distTo[sizeX * sizeY] < Double.POSITIVE_INFINITY)
         {
-            distTo[x] = 0.0;
-            pq.insert(x, distTo[x]);
-        }
-        while (!pq.isEmpty()) 
-        {
-            int v = pq.delMin();
-            for (DirectedEdge e : edgesXFrom(v))
-            {
-                if (e != null)
-                {
-                    int s = e.from();
-                    int i = e.to();
-                    if (distTo[i] > distTo[s] + e.weight()) {
-                        distTo[i] = distTo[s] + e.weight();
-                        edgeTo[i] = e;
-                        if (pq.contains(i)) pq.decreaseKey(i, distTo[i]);
-                        else                pq.insert(i, distTo[i]);
-                    }
-                }
-            }
-        }
-        if (distTo[sizeX * sizeY] < minDistance)
-        {
-            minDistance = distTo[sizeX * sizeY];
             int i = sizeY - 1;
-            for (DirectedEdge e = edgeTo[sizeX * sizeY]; e != null; e = edgeTo[e.from()]) {
-                if (e.from() != sizeX * sizeY)
-                    verticalSeam[i--] = e.from()%sizeX;
+            for (DirectedEdge e = graph.edgeTo[sizeX * sizeY]; e != null; e = graph.edgeTo[e.from()]) {
+                verticalSeam[i--] = e.from()%sizeX;
             }
         }
         
+        fixVertical(verticalSeam);
+        return verticalSeam;
+   }
+   
+   private void fixVertical(int[] seam)
+   {
+       /*  
+        * Needed only for class.
+        * Meanless, 'cause all items on the board have a value of 1000.
+        */
+        int sizeY = mPicture.height();
         if (sizeY > 1)
         {
-            verticalSeam[sizeY-1] = verticalSeam[sizeY-2];
-            if (verticalSeam[1]-1 >= 0)
-                verticalSeam[0] = verticalSeam[1]-1;
-        } 
-        return verticalSeam;
+            seam[sizeY-1] = seam[sizeY-2];
+            if (seam[1]-1 >= 0)
+                seam[0] = seam[1]-1;
+        }
    }
    
    public void removeHorizontalSeam(int[] seam)
