@@ -1,14 +1,9 @@
 
-import edu.princeton.cs.algs4.EdgeWeightedDigraph;
-import edu.princeton.cs.algs4.DijkstraSP;
 import edu.princeton.cs.algs4.DirectedEdge;
 import edu.princeton.cs.algs4.IndexMinPQ;
 import edu.princeton.cs.algs4.Picture;
-import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 import java.awt.Color;
-import java.util.Iterator;
-import static javafx.scene.input.KeyCode.G;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -25,12 +20,20 @@ public class SeamCarver {
    
    private class Item {
        public int          index;
-       public Item         next = null;
+       public Item         next;
+
+        private Item() {
+            this.next = null;
+        }
    }
    
    private class Way {
        public double       distance;
-       public Item         start = null;
+       public Item         start;
+
+        private Way() {
+            this.start = null;
+        }
    }
    
    public SeamCarver(Picture picture)
@@ -140,42 +143,48 @@ public class SeamCarver {
         
         int[] horizontalSeam = new int[sizeX];
         double minDistance = Double.POSITIVE_INFINITY;
+        // relax vertices in order of distance from s
+        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(vertexes);
         for (int y = sizeY-1; y >= 0; --y)
         {
             distTo[y] = 0.0;
-            // relax vertices in order of distance from s
-            IndexMinPQ<Double> pq = new IndexMinPQ<Double>(vertexes);
             pq.insert(y, distTo[y]);
-            while (!pq.isEmpty()) {
-                int v = pq.delMin();
-                for (DirectedEdge e : edgesYFrom(v))
+        }
+        while (!pq.isEmpty()) 
+        {
+            int v = pq.delMin();
+            for (DirectedEdge e : edgesYFrom(v))
+            {
+                if (e != null)
                 {
-                    if (e != null)
-                    {
-                        int s = e.from();
-                        int i = e.to();
-                        if (distTo[i] > distTo[s] + e.weight()) {
-                            distTo[i] = distTo[s] + e.weight();
-                            edgeTo[i] = e;
-                            if (pq.contains(i)) pq.decreaseKey(i, distTo[i]);
-                            else                pq.insert(i, distTo[i]);
-                        }
+                    int s = e.from();
+                    int i = e.to();
+                    if (distTo[i] > distTo[s] + e.weight()) {
+                        distTo[i] = distTo[s] + e.weight();
+                        edgeTo[i] = e;
+                        if (pq.contains(i)) pq.decreaseKey(i, distTo[i]);
+                        else                pq.insert(i, distTo[i]);
                     }
                 }
             }
-            
-            if (distTo[sizeX * sizeY] < minDistance)
-            {
-                minDistance = distTo[sizeX * sizeY];
-                int i = 0;
-                for (DirectedEdge e = edgeTo[sizeX * sizeY]; e != null; e = edgeTo[e.from()]) {
-                    if (e.from() != 0 && e.from() != sizeX * sizeY)
-                        horizontalSeam[i++] = e.from()%sizeY;
-                }
+        }
+        
+        if (distTo[sizeX * sizeY] < minDistance)
+        {
+            minDistance = distTo[sizeX * sizeY];
+            int i = 0;
+            for (DirectedEdge e = edgeTo[sizeX * sizeY]; e != null; e = edgeTo[e.from()]) {
+                if (e.from() != 0 && e.from() != sizeX * sizeY)
+                    horizontalSeam[i++] = e.from()%sizeY;
             }
         }
+        
         if (sizeX > 1)
+        {
             horizontalSeam[0] = horizontalSeam[1];
+            if (horizontalSeam[sizeX-2]+1 < sizeY)
+                horizontalSeam[sizeX-1] = horizontalSeam[sizeX-2]+1;
+        }
         return horizontalSeam;
    }
    
@@ -227,42 +236,47 @@ public class SeamCarver {
         
         int[] verticalSeam = new int[sizeY];
         double minDistance = Double.POSITIVE_INFINITY;
-        for (int x = 0; x < sizeX; ++x)
+        // relax vertices in order of distance from s
+        IndexMinPQ<Double> pq = new IndexMinPQ<Double>(vertexes);
+        for (int x = sizeX-1; x >= 0; --x)
         {
             distTo[x] = 0.0;
-            // relax vertices in order of distance from s
-            IndexMinPQ<Double> pq = new IndexMinPQ<Double>(vertexes);
             pq.insert(x, distTo[x]);
-            while (!pq.isEmpty()) {
-                int v = pq.delMin();
-                for (DirectedEdge e : edgesXFrom(v))
+        }
+        while (!pq.isEmpty()) 
+        {
+            int v = pq.delMin();
+            for (DirectedEdge e : edgesXFrom(v))
+            {
+                if (e != null)
                 {
-                    if (e != null)
-                    {
-                        int s = e.from();
-                        int i = e.to();
-                        if (distTo[i] > distTo[s] + e.weight()) {
-                            distTo[i] = distTo[s] + e.weight();
-                            edgeTo[i] = e;
-                            if (pq.contains(i)) pq.decreaseKey(i, distTo[i]);
-                            else                pq.insert(i, distTo[i]);
-                        }
+                    int s = e.from();
+                    int i = e.to();
+                    if (distTo[i] > distTo[s] + e.weight()) {
+                        distTo[i] = distTo[s] + e.weight();
+                        edgeTo[i] = e;
+                        if (pq.contains(i)) pq.decreaseKey(i, distTo[i]);
+                        else                pq.insert(i, distTo[i]);
                     }
                 }
             }
-            
-            if (distTo[sizeX * sizeY] < minDistance)
-            {
-                minDistance = distTo[sizeX * sizeY];
-                int i = sizeY - 1;
-                for (DirectedEdge e = edgeTo[sizeX * sizeY]; e != null; e = edgeTo[e.from()]) {
-                    if (e.from() != 0 && e.from() != sizeX * sizeY)
-                        verticalSeam[i--] = e.from()%sizeX;
-                }
+        }
+        if (distTo[sizeX * sizeY] < minDistance)
+        {
+            minDistance = distTo[sizeX * sizeY];
+            int i = sizeY - 1;
+            for (DirectedEdge e = edgeTo[sizeX * sizeY]; e != null; e = edgeTo[e.from()]) {
+                if (e.from() != sizeX * sizeY)
+                    verticalSeam[i--] = e.from()%sizeX;
             }
         }
+        
         if (sizeY > 1)
+        {
             verticalSeam[sizeY-1] = verticalSeam[sizeY-2];
+            if (verticalSeam[1]-1 >= 0)
+                verticalSeam[0] = verticalSeam[1]-1;
+        } 
         return verticalSeam;
    }
    
