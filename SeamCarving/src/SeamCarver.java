@@ -1,11 +1,14 @@
 
 import edu.princeton.cs.algs4.EdgeWeightedDigraph;
-import edu.princeton.cs.algs4.DijkstraAllPairsSP;
 import edu.princeton.cs.algs4.DijkstraSP;
 import edu.princeton.cs.algs4.DirectedEdge;
 import edu.princeton.cs.algs4.IndexMinPQ;
 import edu.princeton.cs.algs4.Picture;
+import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.StdOut;
+import java.awt.Color;
 import java.util.Iterator;
+import static javafx.scene.input.KeyCode.G;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -18,154 +21,313 @@ import java.util.Iterator;
  * @author REDRADIST
  */
 public class SeamCarver {
-   private Picture m_picture;
-   private final double[][] m_energy;
+   private Picture mPicture;
+   
+   private class Item {
+       public int          index;
+       public Item         next = null;
+   }
+   
+   private class Way {
+       public double       distance;
+       public Item         start = null;
+   }
+   
    public SeamCarver(Picture picture)
    {
-    m_picture = new Picture(picture);
-    m_energy = new double[m_picture.width()][m_picture.height()];
-    int size_x = m_picture.width(); 
-    int size_y = m_picture.height();
-    for (int x = 0; x < size_x; ++x)
-    {
-        for (int y = 0; y < size_y; ++y) 
-        {
-           m_energy[x][y] = energy(x, y);
-        }
-    }
+        mPicture = new Picture(picture);
    }
+   
    public Picture picture()
    {
-       return m_picture;
+       return new Picture(mPicture);
    }
+   
    public int width()
    {
-       return m_picture.width();
+       return mPicture.width();
    }
    public int height()
    {
-       return m_picture.height();
+       return mPicture.height();
    }
+   
    public double energy(int x, int y)
    {
-       double energy_pixel = 0;
-       //
-       if (x-1 >= 0 && x+1 < m_picture.width())
+       int sizeX = mPicture.width(); 
+       int sizeY = mPicture.height();
+       if (x < 0 || x >= sizeX)
        {
-           energy_pixel += 
-                Math.pow(Math.abs(m_energy[x+1][y]-m_energy[x-1][y]),2);
+           throw new IndexOutOfBoundsException("Invalid index x");
        }
-       else if (x-1 >= 0)
+       else if (y < 0 || y >= sizeY)
        {
-           energy_pixel += 
-                Math.pow(Math.abs(m_energy[x][y]-m_energy[x-1][y]),2);
+           throw new IndexOutOfBoundsException("Invalid index y");
        }
-       else 
+       double energy = 1000;
+       if ((x-1 >= 0 && x+1 < mPicture.width()) &&
+           (y-1 >= 0 && y+1 < mPicture.height()))
        {
-           energy_pixel += 
-                Math.pow(Math.abs(m_energy[x+1][y]-m_energy[x][y]),2);
+           Color rightColor = mPicture.get(x+1, y);
+           Color leftColor = mPicture.get(x-1, y);
+           double diffHorizontal = diffEnergy(rightColor, leftColor);
+           
+           Color upColor = mPicture.get(x, y-1);
+           Color downColor = mPicture.get(x, y+1);
+           double diffVertical = diffEnergy(upColor, downColor);
+           
+           energy = Math.sqrt(diffHorizontal+diffVertical);
        }
-       if (y-1 >= 0 && y+1 < m_picture.height())
-       {
-           energy_pixel += 
-                Math.pow(Math.abs(m_energy[x][y+1]-m_energy[x][y-1]),2);
-       }
-       else if (y-1 >= 0)
-       {
-           energy_pixel += 
-                Math.pow(Math.abs(m_energy[x][y]-m_energy[x][y-1]),2);
-       }
-       else 
-       {
-           energy_pixel += 
-                Math.pow(Math.abs(m_energy[x][y+1]-m_energy[x][y]),2);
-       }
-       return Math.sqrt(energy_pixel);
+       return energy;
    }
+   
+   private double diffEnergy(Color first, Color second)
+   {
+    double ydeltaBlue = 
+        Math.pow(Math.abs(first.getBlue() - second.getBlue()), 2);
+    double ydeltaGreen = 
+        Math.pow(Math.abs(first.getGreen()- second.getGreen()), 2);
+    double ydeltaRed = 
+        Math.pow(Math.abs(first.getRed()- second.getRed()), 2);
+    return ydeltaBlue + ydeltaGreen + ydeltaRed;
+   }
+   
+   // relax edge e and update pq if changed
+    private DirectedEdge[] edgesYFrom(int vertex)
+    {
+        int sizeX = mPicture.width(); 
+        int sizeY = mPicture.height();
+        DirectedEdge[] edges = new DirectedEdge[0];
+        if (vertex < sizeY * sizeX)
+        {
+            if (vertex >= sizeY * (sizeX-1))
+            {
+                edges = new DirectedEdge[1];
+                int relativeYIndex = vertex%sizeY;
+                int relativeXIndex = vertex/sizeY;
+                double energy = energy(sizeX-relativeXIndex-1, relativeYIndex);
+                edges[0] = new DirectedEdge(vertex, sizeX * sizeY, energy);
+            }
+            else 
+            {
+              int relativeYIndex = vertex%sizeY;
+              int relativeXIndex = vertex/sizeY;
+              double energy = energy(sizeX-relativeXIndex-1, relativeYIndex);
+              int edgesNum = (relativeYIndex-1 >= 0 && relativeYIndex+1 < sizeY) ? 3 : 2;
+              edges = new DirectedEdge[edgesNum];
+
+              int i = 0;
+              if (relativeYIndex-1 >= 0)
+                  edges[i++] = new DirectedEdge(vertex, vertex+sizeY-1, energy);
+              if (relativeYIndex+1 < sizeY)
+                  edges[i++] = new DirectedEdge(vertex, vertex+sizeY+1, energy);
+              edges[i] = new DirectedEdge(vertex, vertex+sizeY, energy);
+            }
+        }
+        return edges;
+    }
+   
    public int[] findHorizontalSeam()
    {
-       EdgeWeightedDigraph graph;
-       graph = new EdgeWeightedDigraph(m_picture.width()*m_picture.height()+2);
-       int size_x = m_picture.width(); 
-       int size_y = m_picture.height();
-       int max = size_x * size_y + 1;
-       for (int i = 0; i < size_x; ++i)
-       {
-            int x = i+1;
-            graph.addEdge(new DirectedEdge(0, x, 0));
-            for (int k = 0; k < size_y; ++k)
-            {
-                if (x+size_x-1 < max && k-1 > 0)
-                    graph.addEdge(new DirectedEdge(x, x+size_x-1, m_energy[x][k-1]));
-                if (x+size_x < max)
-                    graph.addEdge(new DirectedEdge(x, x+size_x, m_energy[x][k]));
-                if (x+size_x+1 < max && k+1 < size_y)
-                    graph.addEdge(new DirectedEdge(x, x+size_x+1, m_energy[x][k+1]));
-            }
-            graph.addEdge(
-               new DirectedEdge((size_y-1)*size_x+i+1, size_x*size_y+1, 0));
-       }
+        int sizeX = mPicture.width(); 
+        int sizeY = mPicture.height();
+        int vertexes = sizeX * sizeY + 1;
        
-       DijkstraSP shortest_path;
-       shortest_path = new DijkstraSP(graph, 0);
-       int[] horizontalSeam = new int[size_y];
-       Iterator<DirectedEdge> path = 
-               shortest_path.pathTo(size_x*size_y+1).iterator(); 
-       int i = 0;
-       path.next();
-       while(path.hasNext())
-       {
-           horizontalSeam[i] = path.next().from();
-           i++;
-       }
-       horizontalSeam[size_y-1] = horizontalSeam[size_y-2];
-       return horizontalSeam;
+        double[] distTo = new double[vertexes];
+        DirectedEdge[] edgeTo = new DirectedEdge[vertexes];
+        for (int v = 0; v < vertexes; v++)
+            distTo[v] = Double.POSITIVE_INFINITY;
+        
+        int[] horizontalSeam = new int[sizeX];
+        double minDistance = Double.POSITIVE_INFINITY;
+        for (int y = sizeY-1; y >= 0; --y)
+        {
+            distTo[y] = 0.0;
+            // relax vertices in order of distance from s
+            IndexMinPQ<Double> pq = new IndexMinPQ<Double>(vertexes);
+            pq.insert(y, distTo[y]);
+            while (!pq.isEmpty()) {
+                int v = pq.delMin();
+                for (DirectedEdge e : edgesYFrom(v))
+                {
+                    if (e != null)
+                    {
+                        int s = e.from();
+                        int i = e.to();
+                        if (distTo[i] > distTo[s] + e.weight()) {
+                            distTo[i] = distTo[s] + e.weight();
+                            edgeTo[i] = e;
+                            if (pq.contains(i)) pq.decreaseKey(i, distTo[i]);
+                            else                pq.insert(i, distTo[i]);
+                        }
+                    }
+                }
+            }
+            
+            if (distTo[sizeX * sizeY] < minDistance)
+            {
+                minDistance = distTo[sizeX * sizeY];
+                int i = 0;
+                for (DirectedEdge e = edgeTo[sizeX * sizeY]; e != null; e = edgeTo[e.from()]) {
+                    if (e.from() != 0 && e.from() != sizeX * sizeY)
+                        horizontalSeam[i++] = e.from()%sizeY;
+                }
+            }
+        }
+        if (sizeX > 1)
+            horizontalSeam[0] = horizontalSeam[1];
+        return horizontalSeam;
    }
+   
+    // relax edge e and update pq if changed
+    private DirectedEdge[] edgesXFrom(int vertex)
+    {
+        int sizeX = mPicture.width(); 
+        int sizeY = mPicture.height();
+        DirectedEdge[] edges = new DirectedEdge[0];
+        if (vertex < sizeX * sizeY)
+        {
+            if (vertex >= sizeX * (sizeY-1))
+            {
+                edges = new DirectedEdge[1];
+                int relativeXIndex = vertex%sizeX;
+                int relativeYIndex = vertex/sizeX;
+                double energy = energy(relativeXIndex, relativeYIndex);
+                edges[0] = new DirectedEdge(vertex, sizeX * sizeY, energy);
+            }
+            else 
+            {
+              int relativeXIndex = vertex%sizeX;
+              int relativeYIndex = vertex/sizeX;
+              double energy = energy(relativeXIndex, relativeYIndex);
+              int edgesNum = (relativeXIndex-1 >= 0 && relativeXIndex+1 < sizeX) ? 3 : 2;
+              edges = new DirectedEdge[edgesNum];
+
+              int i = 0;
+              if (relativeXIndex-1 >= 0)
+                  edges[i++] = new DirectedEdge(vertex, vertex+sizeX-1, energy);
+              if (relativeXIndex+1 < sizeX)
+                  edges[i++] = new DirectedEdge(vertex, vertex+sizeX+1, energy);
+              edges[i] = new DirectedEdge(vertex, vertex+sizeX, energy);
+            }
+        }
+        return edges;
+    }
+   
    public int[] findVerticalSeam()
    {
-       EdgeWeightedDigraph graph;
-       graph = new EdgeWeightedDigraph(m_picture.width()*m_picture.height()+2);
-       int size_x = m_picture.width(); 
-       int size_y = m_picture.height();
-       int max = size_x * size_y + 1;
-       for (int i = 0; i < size_y; ++i)
-       {
-            int y = i+1;
-            graph.addEdge(new DirectedEdge(0, y, 0));
-            for (int k = 0; k < size_x; ++k)
-            {
-                if (y+size_y-1 < max && k-1 > 0)
-                    graph.addEdge(new DirectedEdge(y, y+size_y-1, m_energy[k-1][y]));
-                if (y+size_y < max)
-                    graph.addEdge(new DirectedEdge(y, y+size_y, m_energy[k][y]));
-                if (y+size_y+1 < max && k+1 < size_x)
-                    graph.addEdge(new DirectedEdge(y, y+size_y+1, m_energy[k+1][y]));
-            }
-            graph.addEdge(
-               new DirectedEdge((size_x-1)*size_y+i+1, size_x*size_y+1, 0));
-       }
+        int sizeX = mPicture.width(); 
+        int sizeY = mPicture.height();
+        int vertexes = sizeX * sizeY + 1;
        
-       DijkstraSP shortest_path;
-       shortest_path = new DijkstraSP(graph, 0);
-       int[] verticalSeam = new int[size_x];
-       Iterator<DirectedEdge> path = 
-               shortest_path.pathTo(size_x*size_y+1).iterator(); 
-       int i = 0;
-       path.next();
-       while(path.hasNext())
-       {
-           verticalSeam[i] = path.next().from();
-           i++;
-       }
-       verticalSeam[size_y-1] = verticalSeam[size_y-2];
-       return verticalSeam;
+        double[] distTo = new double[vertexes];
+        DirectedEdge[] edgeTo = new DirectedEdge[vertexes];
+        for (int v = 0; v < vertexes; v++)
+            distTo[v] = Double.POSITIVE_INFINITY;
+        
+        int[] verticalSeam = new int[sizeY];
+        double minDistance = Double.POSITIVE_INFINITY;
+        for (int x = 0; x < sizeX; ++x)
+        {
+            distTo[x] = 0.0;
+            // relax vertices in order of distance from s
+            IndexMinPQ<Double> pq = new IndexMinPQ<Double>(vertexes);
+            pq.insert(x, distTo[x]);
+            while (!pq.isEmpty()) {
+                int v = pq.delMin();
+                for (DirectedEdge e : edgesXFrom(v))
+                {
+                    if (e != null)
+                    {
+                        int s = e.from();
+                        int i = e.to();
+                        if (distTo[i] > distTo[s] + e.weight()) {
+                            distTo[i] = distTo[s] + e.weight();
+                            edgeTo[i] = e;
+                            if (pq.contains(i)) pq.decreaseKey(i, distTo[i]);
+                            else                pq.insert(i, distTo[i]);
+                        }
+                    }
+                }
+            }
+            
+            if (distTo[sizeX * sizeY] < minDistance)
+            {
+                minDistance = distTo[sizeX * sizeY];
+                int i = sizeY - 1;
+                for (DirectedEdge e = edgeTo[sizeX * sizeY]; e != null; e = edgeTo[e.from()]) {
+                    if (e.from() != 0 && e.from() != sizeX * sizeY)
+                        verticalSeam[i--] = e.from()%sizeX;
+                }
+            }
+        }
+        if (sizeY > 1)
+            verticalSeam[sizeY-1] = verticalSeam[sizeY-2];
+        return verticalSeam;
    }
+   
    public void removeHorizontalSeam(int[] seam)
    {
-       m_picture.
+       int sizeX = mPicture.width();
+       int sizeY = mPicture.height();
+       if (seam.length != sizeX)
+            throw new IllegalArgumentException ();
+       Picture temp;
+       temp = new Picture(sizeX, sizeY-1);
+       int prev = seam[0];
+       for (int x = 0; x < sizeX; ++x)
+       {       
+            for (int y = 0; y < sizeY; ++y)
+            {
+                if (seam[x] < 0 || seam[x] >= sizeY ||
+                    Math.abs(prev-seam[x]) > 1)
+                    throw new IllegalArgumentException ();
+                prev = seam[x];
+                if (seam[x] != y)
+                    temp.set(x, (y > seam[x])? y-1 : y, mPicture.get(x, y));
+            }
+       }
+       mPicture = temp;
    }
+   
    public void removeVerticalSeam(int[] seam)
    {
-       
+       int sizeX = mPicture.width();
+       int sizeY = mPicture.height();
+       if (seam.length != sizeY)
+            throw new IllegalArgumentException ();
+       Picture temp;
+       temp = new Picture(sizeX-1, sizeY);
+       int prev = seam[0];
+       for (int y = 0; y < sizeY; ++y)
+       {       
+            for (int x = 0; x < sizeX; ++x)
+            {
+                if (seam[y] < 0 || seam[y] >= sizeX ||
+                    Math.abs(prev-seam[y]) > 1)
+                    throw new IllegalArgumentException ();
+                prev = seam[y];
+                if (seam[y] != x)
+                    temp.set((x > seam[y])? x-1 : x, y, mPicture.get(x, y));
+            }
+       }
+       mPicture = temp;
    }
+   
+    public static void main(String[] args) {
+        Picture picture = new Picture(args[0]);
+        SeamCarver seam = new SeamCarver(picture);
+        int[] vertical = seam.findVerticalSeam();
+        StdOut.println("Vertical seam:");
+        for (int ver : vertical)
+        {
+            StdOut.println(ver);
+        }
+        int[] horizontal = seam.findHorizontalSeam();
+        StdOut.println("Horizontal seam:");
+        for (int hor : horizontal)
+        {
+            StdOut.println(hor);
+        }
+    }
 }
