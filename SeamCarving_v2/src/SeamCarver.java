@@ -18,7 +18,7 @@ public class SeamCarver {
         if (picture == null) {
             throw new IllegalArgumentException("picture should not be null !!");
         }
-        this.picture = picture;
+        this.picture = new Picture(picture);
     }
 
     /**
@@ -26,7 +26,7 @@ public class SeamCarver {
      * @return Picture
      */
     public Picture picture() {
-        return picture;
+        return new Picture(picture);
     }
 
     /**
