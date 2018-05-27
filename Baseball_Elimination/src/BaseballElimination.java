@@ -130,7 +130,7 @@ public class BaseballElimination {
         return eliminatedByTeams.size() > 0;
     }
 
-    private boolean isNonTriviallyEliminated(String teamName) {
+    private void calculateElimination(String teamName) {
         Set<String> handledIndexes = new HashSet<>();
         Map<Integer, Integer> mapIndexVertic = new HashMap<>();
         Map<Integer, Integer> mapVerticIndex = new HashMap<>();
@@ -200,7 +200,11 @@ public class BaseballElimination {
             }
             teams.get(teamName).eliminatedByTeams = eliminatedByTeams;
         }
-        return eliminated;
+    }
+
+    private boolean isNonTriviallyEliminated(String teamName) {
+        calculateElimination(teamName);
+        return teams.get(teamName).eliminatedByTeams.size() > 0;
     }
 
     // is given team eliminated?
@@ -216,7 +220,11 @@ public class BaseballElimination {
         if (!teams.containsKey(teamName)) {
             throw new IllegalArgumentException(String.format("No such team = %s", teamName));
         }
-        return teams.get(teamName).eliminatedByTeams;
+        Iterable<String> result = null;
+        if (isEliminated(teamName)) {
+            result = teams.get(teamName).eliminatedByTeams;
+        }
+        return result;
     }
 
     public static void main(String[] args) {

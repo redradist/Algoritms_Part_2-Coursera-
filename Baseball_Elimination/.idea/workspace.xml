@@ -15,8 +15,8 @@
       <file leaf-file-name="BaseballElimination.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/BaseballElimination.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="131">
-              <caret line="132" selection-start-line="132" selection-end-line="132" />
+            <state relative-caret-position="392">
+              <caret line="226" selection-start-line="226" selection-end-line="226" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#1435#1436#0" expanded="true" />
@@ -172,7 +172,7 @@
     <configuration name="Main" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="BaseballElimination" />
       <module name="Baseball_Elimination" />
-      <option name="PROGRAM_PARAMETERS" value="$PROJECT_DIR$/baseball/teams4.txt" />
+      <option name="PROGRAM_PARAMETERS" value="$PROJECT_DIR$/baseball/teams5.txt" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
@@ -226,7 +226,7 @@
       <window_info anchor="right" id="Maven Projects" order="3" />
       <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.329718" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.5976139" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.24403471" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15555556" />
@@ -352,8 +352,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/BaseballElimination.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="131">
-          <caret line="132" selection-start-line="132" selection-end-line="132" />
+        <state relative-caret-position="392">
+          <caret line="226" selection-start-line="226" selection-end-line="226" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#1435#1436#0" expanded="true" />
