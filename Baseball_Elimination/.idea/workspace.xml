@@ -15,8 +15,8 @@
       <file leaf-file-name="BaseballElimination.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/BaseballElimination.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="274">
-              <caret line="165" column="76" lean-forward="true" selection-start-line="165" selection-start-column="76" selection-end-line="165" selection-end-column="76" />
+            <state relative-caret-position="131">
+              <caret line="132" selection-start-line="132" selection-end-line="132" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#1435#1436#0" expanded="true" />
@@ -31,14 +31,19 @@
       <file leaf-file-name="FordFulkerson.java" pinned="false" current-in-tab="false">
         <entry file="jar://$PROJECT_DIR$/../../__Software/algs4.jar!/edu/princeton/cs/algs4/FordFulkerson.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="58">
-              <caret line="91" column="18" selection-start-line="91" selection-start-column="18" selection-end-line="91" selection-end-column="18" />
+            <state relative-caret-position="324">
+              <caret line="131" lean-forward="true" selection-start-line="131" selection-end-line="131" />
               <folding>
                 <element signature="e#3602#3603#0" expanded="true" />
                 <element signature="e#3630#3631#0" expanded="true" />
               </folding>
             </state>
           </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="baseball-testing.zip" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/baseball-testing.zip">
+          <provider selected="true" editor-type-id="apk-viewer" />
         </entry>
       </file>
       <file leaf-file-name="Integer.java" pinned="false" current-in-tab="false">
@@ -66,8 +71,8 @@
       <file leaf-file-name="FlowEdge.java" pinned="false" current-in-tab="false">
         <entry file="jar://$PROJECT_DIR$/../../__Software/algs4.jar!/edu/princeton/cs/algs4/FlowEdge.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="42" column="11" selection-start-line="42" selection-start-column="11" selection-end-line="42" selection-end-column="11" />
+            <state relative-caret-position="-644">
+              <caret line="26" column="13" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="13" />
             </state>
           </provider>
         </entry>
@@ -101,6 +106,7 @@
       <find>remainingGames</find>
       <find>Flow</find>
       <find>not eliminated</find>
+      <find>marked</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -166,7 +172,7 @@
     <configuration name="Main" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="BaseballElimination" />
       <module name="Baseball_Elimination" />
-      <option name="PROGRAM_PARAMETERS" value="$PROJECT_DIR$/baseball/teams5.txt" />
+      <option name="PROGRAM_PARAMETERS" value="$PROJECT_DIR$/baseball/teams4.txt" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
@@ -220,7 +226,7 @@
       <window_info anchor="right" id="Maven Projects" order="3" />
       <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.329718" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.5976139" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15555556" />
@@ -244,42 +250,27 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/BaseballElimination.java</url>
-          <line>207</line>
-          <properties />
-          <option name="timeStamp" value="39" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/BaseballElimination.java</url>
-          <line>214</line>
-          <properties />
-          <option name="timeStamp" value="41" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/BaseballElimination.java</url>
-          <line>179</line>
-          <properties />
-          <option name="timeStamp" value="46" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/BaseballElimination.java</url>
-          <line>184</line>
-          <properties />
-          <option name="timeStamp" value="47" />
-        </line-breakpoint>
-      </breakpoints>
-      <option name="time" value="49" />
+      <option name="time" value="70" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
-        <watch expression="maxFlow.value()" language="JAVA" />
+        <watch expression="edge2.other(ver0)" language="JAVA" />
+        <watch expression="ver0" language="JAVA" />
       </configuration>
     </watches-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="watch">
+      <expression>
+        <expression-string>ver0</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>edge2.other(ver0)</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>maxFlow.value()</expression-string>
         <language-id>JAVA</language-id>
@@ -327,24 +318,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$PROJECT_DIR$/../../__Software/algs4.jar!/edu/princeton/cs/algs4/FordFulkerson.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="58">
-          <caret line="91" column="18" selection-start-line="91" selection-start-column="18" selection-end-line="91" selection-end-column="18" />
-          <folding>
-            <element signature="e#3602#3603#0" expanded="true" />
-            <element signature="e#3630#3631#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/../../__Software/algs4.jar!/edu/princeton/cs/algs4/FlowEdge.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="42" column="11" selection-start-line="42" selection-start-column="11" selection-end-line="42" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$PROJECT_DIR$/../../__Software/algs4.jar!/edu/princeton/cs/algs4/FlowNetwork.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="544">
@@ -356,10 +329,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$PROJECT_DIR$/../../__Software/algs4.jar!/edu/princeton/cs/algs4/FlowEdge.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-644">
+          <caret line="26" column="13" selection-start-line="26" selection-start-column="13" selection-end-line="26" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/../../__Software/algs4.jar!/edu/princeton/cs/algs4/FordFulkerson.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="131" lean-forward="true" selection-start-line="131" selection-end-line="131" />
+          <folding>
+            <element signature="e#3602#3603#0" expanded="true" />
+            <element signature="e#3630#3631#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/baseball-testing.zip">
+      <provider selected="true" editor-type-id="apk-viewer" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/BaseballElimination.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="274">
-          <caret line="165" column="76" lean-forward="true" selection-start-line="165" selection-start-column="76" selection-end-line="165" selection-end-column="76" />
+        <state relative-caret-position="131">
+          <caret line="132" selection-start-line="132" selection-end-line="132" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#1435#1436#0" expanded="true" />

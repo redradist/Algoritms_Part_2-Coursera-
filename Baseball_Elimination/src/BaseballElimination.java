@@ -14,6 +14,7 @@ import java.util.Arrays;
 
 public class BaseballElimination {
     private class TeamData {
+        final String name;
         final int index;
         final int gamesWins;
         final int gamesLoses;
@@ -21,7 +22,8 @@ public class BaseballElimination {
         final int[] remainingGames;
         List<String> eliminatedByTeams;
 
-        TeamData(int numberOfTeams, int index, int gamesWins, int gamesLoses, int gamesRemains) {
+        TeamData(int numberOfTeams, String name, int index, int gamesWins, int gamesLoses, int gamesRemains) {
+            this.name = name;
             this.index = index;
             this.gamesWins = gamesWins;
             this.gamesLoses = gamesLoses;
@@ -48,6 +50,7 @@ public class BaseballElimination {
             String[] allSubStrings = line.split("\\s+");
             String teamName = allSubStrings[0];
             TeamData teamData = new TeamData(numberOfTeams,
+                                             teamName,
                                              teamIndex,
                                              Integer.parseInt(allSubStrings[1]),
                                              Integer.parseInt(allSubStrings[2]),
@@ -130,6 +133,7 @@ public class BaseballElimination {
     private boolean isNonTriviallyEliminated(String teamName) {
         Set<String> handledIndexes = new HashSet<>();
         Map<Integer, Integer> mapIndexVertic = new HashMap<>();
+        Map<Integer, Integer> mapVerticIndex = new HashMap<>();
         List<FlowEdge> flowEdges = new ArrayList<>();
         int verticIndex = 2;
         double maxPossibleFlow = 0.0;
@@ -158,6 +162,7 @@ public class BaseballElimination {
                                 if (newVertixIndex == null) {
                                     newVertixIndex = verticIndex++;
                                     mapIndexVertic.put(opponent0TeamData.index, newVertixIndex);
+                                    mapVerticIndex.put(newVertixIndex, opponent0TeamData.index);
                                     flowEdges.add(new FlowEdge(newVertixIndex, 1, maxWins - opponent0TeamData.gamesWins));
                                 }
                                 flowEdges.add(new FlowEdge(middleVerticIndex, newVertixIndex, Double.POSITIVE_INFINITY));
@@ -167,6 +172,7 @@ public class BaseballElimination {
                                 if (newVertixIndex == null) {
                                     newVertixIndex = verticIndex++;
                                     mapIndexVertic.put(opponent1Index, newVertixIndex);
+                                    mapVerticIndex.put(newVertixIndex, opponent1Index);
                                     flowEdges.add(new FlowEdge(newVertixIndex, 1, maxWins - teamsIndexes.get(opponent1Index).gamesWins));
                                 }
                                 flowEdges.add(new FlowEdge(middleVerticIndex, newVertixIndex, Double.POSITIVE_INFINITY));
@@ -176,13 +182,25 @@ public class BaseballElimination {
                 }
             }
         }
-        int sizeEdges = flowEdges.size();
         FlowNetwork network = new FlowNetwork(verticIndex);
         for (FlowEdge edge : flowEdges) {
             network.addEdge(edge);
         }
         FordFulkerson maxFlow = new FordFulkerson(network, 0, 1);
-        return maxPossibleFlow > maxFlow.value();
+        boolean eliminated = maxPossibleFlow > maxFlow.value();
+        if (eliminated) {
+            List<String> eliminatedByTeams = new ArrayList<>();
+            for (int i = 0; i < verticIndex; ++i) {
+                if (maxFlow.inCut(i)) {
+                    Integer intg = mapVerticIndex.get(i);
+                    if (intg != null) {
+                        eliminatedByTeams.add(teamsIndexes.get(intg).name);
+                    }
+                }
+            }
+            teams.get(teamName).eliminatedByTeams = eliminatedByTeams;
+        }
+        return eliminated;
     }
 
     // is given team eliminated?
