@@ -1,4 +1,5 @@
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import edu.princeton.cs.algs4.In;
@@ -40,8 +41,8 @@ public class BoggleSolver {
     // (You can assume the word contains only the uppercase letters A through Z.)
     public int scoreOf(String word) {
         int score = 0;
-        boolean isExist = dictionary.contains(word);
-        if (isExist) {
+        Boolean isExist = dictionary.get(word);
+        if (isExist != null && isExist) {
             switch (word.length()) {
                 case 0:
                     score = 0;
@@ -84,59 +85,43 @@ public class BoggleSolver {
         marked[rowIndex][columnIndex] = true;
         prefix.append(board.getLetter(rowIndex, columnIndex));
 
-        String foundWordByPrefix;
-        String foundWordByExPrefix;
-
+        String prefixToCheck;
         if (board.getLetter(rowIndex, columnIndex) != 'Q') {
-            foundWordByPrefix = dictionary.longestPrefixOf(prefix.toString());
-            if (foundWordByPrefix != null) {
-                if (dictionary.get(foundWordByPrefix) &&
-                    foundWordByPrefix.length() >= 3) {
+            prefixToCheck = prefix.toString();
+        } else {
+            prefixToCheck = prefix.toString() + 'U';
+        }
+        String foundWordByPrefix = dictionary.longestPrefixOf(prefixToCheck);
+        if (foundWordByPrefix != null && foundWordByPrefix.length() > 0) {
+            if (dictionary.get(foundWordByPrefix) &&
+                foundWordByPrefix.length() >= 3) {
+                if (board.getLetter(rowIndex, columnIndex) != 'Q' ||
+                    foundWordByPrefix.length() == prefixToCheck.length()) {
                     list.add(foundWordByPrefix);
                 }
-                if (foundWordByPrefix.length() < prefix.length()) {
-                    prefix.deleteCharAt(prefix.length()-1);
-                    marked[rowIndex][columnIndex] = false;
-                    return;
-                }
             }
-            for (int i = -1; i <= 1; ++i) {
-                for (int j = -1; j <= 1; ++j) {
-                    if (0 <= rowIndex+i && rowIndex+i < board.rows() &&
-                        0 <= columnIndex+j && columnIndex+j < board.cols()) {
-                        if (!marked[rowIndex+i][columnIndex+j]) {
+            if (foundWordByPrefix.length() < prefixToCheck.length()) {
+                prefix.deleteCharAt(prefix.length()-1);
+                marked[rowIndex][columnIndex] = false;
+                return;
+            }
+        }
+
+        for (int i = -1; i <= 1; ++i) {
+            for (int j = -1; j <= 1; ++j) {
+                if (0 <= rowIndex+i && rowIndex+i < board.rows() &&
+                    0 <= columnIndex+j && columnIndex+j < board.cols()) {
+                    if (!marked[rowIndex+i][columnIndex+j]) {
+                        if (board.getLetter(rowIndex, columnIndex) == 'Q') {
+                            prefix.append('U');
+                            createWordsFrom(list, prefix, marked, rowIndex+i, columnIndex+j, board);
+                            prefix.deleteCharAt(prefix.length() - 1);
+                        } else {
                             createWordsFrom(list, prefix, marked, rowIndex+i, columnIndex+j, board);
                         }
                     }
                 }
             }
-        } else {
-            prefix.append('U');
-            foundWordByExPrefix = dictionary.longestPrefixOf(prefix.toString());
-            if (foundWordByExPrefix != null) {
-                if (foundWordByExPrefix.length() >= 3) {
-                    if (dictionary.get(foundWordByExPrefix)) {
-                        list.add(foundWordByExPrefix);
-                    }
-                    if (foundWordByExPrefix.length() < prefix.length()) {
-                        prefix.deleteCharAt(prefix.length()-1);
-                        prefix.deleteCharAt(prefix.length()-1);
-                        marked[rowIndex][columnIndex] = false;
-                        return;
-                    }
-                }
-            }
-            for (int i = -1; i <= 1; ++i) {
-                for (int j = -1; j <= 1; ++j) {
-                    if (0 <= rowIndex+i && rowIndex+i < board.rows() &&
-                        0 <= columnIndex+j && columnIndex+j < board.cols()) {
-                        if (!marked[rowIndex+i][columnIndex+j]) {
-                            createWordsFrom(list, prefix, marked, rowIndex+i, columnIndex+j, board);
-                        }
-                    }
-                }
-            }
-            prefix.deleteCharAt(prefix.length()-1);
         }
 
         prefix.deleteCharAt(prefix.length()-1);
@@ -150,11 +135,14 @@ public class BoggleSolver {
         BoggleSolver solver = new BoggleSolver(dictionary);
         BoggleBoard board = new BoggleBoard(args[1]);
         int score = 0;
+        int sizeOfAllWords = 0;
         for (String word : solver.getAllValidWords(board)) {
+            sizeOfAllWords++;
             StdOut.println(word);
             score += solver.scoreOf(word);
         }
         StdOut.println("Score = " + score);
+        StdOut.println("Size = " + sizeOfAllWords);
         long endTime = System.nanoTime();
         long duration = (endTime - startTime) / 1000000000;  //divide by 1000000 to get milliseconds.
         StdOut.println("duration = " + duration);
