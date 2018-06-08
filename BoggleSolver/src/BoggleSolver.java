@@ -3,15 +3,22 @@ import java.util.Set;
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.TST;
 import edu.princeton.cs.algs4.TrieST;
 
 public class BoggleSolver {
-    private final TrieST<Boolean> dictionary = new TrieST<>();
+    private final TST<Boolean> dictionary = new TST<>();
 
     // Initializes the data structure using the given array of strings as the dictionary.
     // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
     public BoggleSolver(String[] dictionary) {
         for (String str : dictionary) {
+            for (int endString = 1; endString <= str.length()-1; ++endString) {
+                String subword = str.substring(0, endString);
+                if (!this.dictionary.contains(subword)) {
+                    this.dictionary.put(str.substring(0, endString), Boolean.FALSE);
+                }
+            }
             this.dictionary.put(str, Boolean.TRUE);
         }
     }
@@ -19,10 +26,11 @@ public class BoggleSolver {
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board) {
         Set<String> list = new HashSet<>();
+        boolean[][] marked = new boolean[board.rows()][board.cols()];
+        StringBuilder prefix = new StringBuilder();
         for (int i = 0; i < board.rows(); ++i) {
             for (int j = 0; j < board.cols(); ++j) {
-                boolean[][] marked = createMarkTable(board.rows(), board.cols());
-                list.addAll(createWordsFrom(new StringBuilder(), marked, i, j, board));
+                createWordsFrom(list, prefix, marked, i, j, board);
             }
         }
         return list;
@@ -67,64 +75,76 @@ public class BoggleSolver {
         return score;
     }
 
-    private Set<String> createWordsFrom(StringBuilder prefix,
-                                        boolean[][] marked,
-                                        final int rowIndex,
-                                        final int columnIndex,
-                                        final BoggleBoard board) {
-        Set<String> list = new HashSet<>();
+    private void createWordsFrom(Set<String> list,
+                                 StringBuilder prefix,
+                                 boolean[][] marked,
+                                 final int rowIndex,
+                                 final int columnIndex,
+                                 final BoggleBoard board) {
         marked[rowIndex][columnIndex] = true;
         prefix.append(board.getLetter(rowIndex, columnIndex));
 
-        String foundWord = dictionary.longestPrefixOf(prefix.toString());
-        if (foundWord != null && foundWord.length() >= 3) {
-            list.add(foundWord);
-        }
+        String foundWordByPrefix;
+        String foundWordByExPrefix;
 
-        if (board.getLetter(rowIndex, columnIndex) == 'Q') {
-            String foundWord2 = dictionary.longestPrefixOf(prefix.toString()+'U');
-            if (foundWord2 != null && foundWord2.length() >= 3) {
-                list.add(foundWord2);
+        if (board.getLetter(rowIndex, columnIndex) != 'Q') {
+            foundWordByPrefix = dictionary.longestPrefixOf(prefix.toString());
+            if (foundWordByPrefix != null) {
+                if (dictionary.get(foundWordByPrefix) &&
+                    foundWordByPrefix.length() >= 3) {
+                    list.add(foundWordByPrefix);
+                }
+                if (foundWordByPrefix.length() < prefix.length()) {
+                    prefix.deleteCharAt(prefix.length()-1);
+                    marked[rowIndex][columnIndex] = false;
+                    return;
+                }
             }
-        }
-
-        for (int i = -1; i <= 1; ++i) {
-            for (int j = -1; j <= 1; ++j) {
-                if (0 <= rowIndex+i && rowIndex+i < board.rows() &&
-                    0 <= columnIndex+j && columnIndex+j < board.cols()) {
-                    if (!marked[rowIndex+i][columnIndex+j]) {
-                        list.addAll(createWordsFrom(new StringBuilder(prefix.toString()), copyNestedArray(marked), rowIndex+i, columnIndex+j, board));
-                        if (board.getLetter(rowIndex, columnIndex) == 'Q') {
-                            list.addAll(createWordsFrom(new StringBuilder(prefix.toString()+'U'), copyNestedArray(marked), rowIndex+i, columnIndex+j, board));
+            for (int i = -1; i <= 1; ++i) {
+                for (int j = -1; j <= 1; ++j) {
+                    if (0 <= rowIndex+i && rowIndex+i < board.rows() &&
+                        0 <= columnIndex+j && columnIndex+j < board.cols()) {
+                        if (!marked[rowIndex+i][columnIndex+j]) {
+                            createWordsFrom(list, prefix, marked, rowIndex+i, columnIndex+j, board);
                         }
                     }
                 }
             }
-        }
-        return list;
-    }
-
-    private boolean[][] copyNestedArray(final boolean[][] array) {
-        boolean[][] newArray = new boolean[array.length][array[0].length];
-        for (int i = 0; i < array.length; i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                newArray[i][j] = array[i][j];
+        } else {
+            prefix.append('U');
+            foundWordByExPrefix = dictionary.longestPrefixOf(prefix.toString());
+            if (foundWordByExPrefix != null) {
+                if (foundWordByExPrefix.length() >= 3) {
+                    if (dictionary.get(foundWordByExPrefix)) {
+                        list.add(foundWordByExPrefix);
+                    }
+                    if (foundWordByExPrefix.length() < prefix.length()) {
+                        prefix.deleteCharAt(prefix.length()-1);
+                        prefix.deleteCharAt(prefix.length()-1);
+                        marked[rowIndex][columnIndex] = false;
+                        return;
+                    }
+                }
             }
-        }
-        return newArray;
-    }
-
-    private boolean[][] createMarkTable(final int rows, final int columns) {
-        boolean[][] marked = new boolean[rows][columns];
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < columns; ++j) {
-                marked[i][j] = false;
+            for (int i = -1; i <= 1; ++i) {
+                for (int j = -1; j <= 1; ++j) {
+                    if (0 <= rowIndex+i && rowIndex+i < board.rows() &&
+                        0 <= columnIndex+j && columnIndex+j < board.cols()) {
+                        if (!marked[rowIndex+i][columnIndex+j]) {
+                            createWordsFrom(list, prefix, marked, rowIndex+i, columnIndex+j, board);
+                        }
+                    }
+                }
             }
+            prefix.deleteCharAt(prefix.length()-1);
         }
-        return marked;
+
+        prefix.deleteCharAt(prefix.length()-1);
+        marked[rowIndex][columnIndex] = false;
     }
 
     public static void main(String[] args) {
+        long startTime = System.nanoTime();
         In in = new In(args[0]);
         String[] dictionary = in.readAllStrings();
         BoggleSolver solver = new BoggleSolver(dictionary);
@@ -135,5 +155,8 @@ public class BoggleSolver {
             score += solver.scoreOf(word);
         }
         StdOut.println("Score = " + score);
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1000000000;  //divide by 1000000 to get milliseconds.
+        StdOut.println("duration = " + duration);
     }
 }
