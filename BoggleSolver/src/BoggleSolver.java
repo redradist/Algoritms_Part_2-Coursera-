@@ -41,8 +41,9 @@ public class BoggleSolver {
     // (You can assume the word contains only the uppercase letters A through Z.)
     public int scoreOf(String word) {
         int score = 0;
-        Boolean isExist = dictionary.get(word);
-        if (isExist != null && isExist) {
+        Boolean isWord = dictionary.get(word);
+        boolean isExist = isWord != null && isWord;
+        if (isExist) {
             switch (word.length()) {
                 case 0:
                     score = 0;
@@ -85,22 +86,22 @@ public class BoggleSolver {
         marked[rowIndex][columnIndex] = true;
         prefix.append(board.getLetter(rowIndex, columnIndex));
 
-        String prefixToCheck;
-        if (board.getLetter(rowIndex, columnIndex) != 'Q') {
-            prefixToCheck = prefix.toString();
-        } else {
-            prefixToCheck = prefix.toString() + 'U';
+        if (board.getLetter(rowIndex, columnIndex) == 'Q') {
+            prefix.append('U');
         }
-        String foundWordByPrefix = dictionary.longestPrefixOf(prefixToCheck);
+        String foundWordByPrefix = dictionary.longestPrefixOf(prefix.toString());
         if (foundWordByPrefix != null && foundWordByPrefix.length() > 0) {
             if (dictionary.get(foundWordByPrefix) &&
                 foundWordByPrefix.length() >= 3) {
                 if (board.getLetter(rowIndex, columnIndex) != 'Q' ||
-                    foundWordByPrefix.length() == prefixToCheck.length()) {
+                    foundWordByPrefix.length() == prefix.length()) {
                     list.add(foundWordByPrefix);
                 }
             }
-            if (foundWordByPrefix.length() < prefixToCheck.length()) {
+            if (foundWordByPrefix.length() < prefix.length()) {
+                if (board.getLetter(rowIndex, columnIndex) == 'Q') {
+                    prefix.deleteCharAt(prefix.length()-1);
+                }
                 prefix.deleteCharAt(prefix.length()-1);
                 marked[rowIndex][columnIndex] = false;
                 return;
@@ -112,18 +113,15 @@ public class BoggleSolver {
                 if (0 <= rowIndex+i && rowIndex+i < board.rows() &&
                     0 <= columnIndex+j && columnIndex+j < board.cols()) {
                     if (!marked[rowIndex+i][columnIndex+j]) {
-                        if (board.getLetter(rowIndex, columnIndex) == 'Q') {
-                            prefix.append('U');
-                            createWordsFrom(list, prefix, marked, rowIndex+i, columnIndex+j, board);
-                            prefix.deleteCharAt(prefix.length() - 1);
-                        } else {
-                            createWordsFrom(list, prefix, marked, rowIndex+i, columnIndex+j, board);
-                        }
+                        createWordsFrom(list, prefix, marked, rowIndex+i, columnIndex+j, board);
                     }
                 }
             }
         }
 
+        if (board.getLetter(rowIndex, columnIndex) == 'Q') {
+            prefix.deleteCharAt(prefix.length()-1);
+        }
         prefix.deleteCharAt(prefix.length()-1);
         marked[rowIndex][columnIndex] = false;
     }
@@ -132,7 +130,10 @@ public class BoggleSolver {
         long startTime = System.nanoTime();
         In in = new In(args[0]);
         String[] dictionary = in.readAllStrings();
+        long startConstructTime = System.currentTimeMillis();
         BoggleSolver solver = new BoggleSolver(dictionary);
+        long endConstructTime = System.currentTimeMillis();
+        System.out.println("Total execution time: " + (endConstructTime-startConstructTime) + "ms");
         BoggleBoard board = new BoggleBoard(args[1]);
         int score = 0;
         int sizeOfAllWords = 0;
@@ -142,7 +143,7 @@ public class BoggleSolver {
             score += solver.scoreOf(word);
         }
         StdOut.println("Score = " + score);
-        StdOut.println("Size = " + sizeOfAllWords);
+        StdOut.println("Size of all words = " + sizeOfAllWords);
         long endTime = System.nanoTime();
         long duration = (endTime - startTime) / 1000000000;  //divide by 1000000 to get milliseconds.
         StdOut.println("duration = " + duration);

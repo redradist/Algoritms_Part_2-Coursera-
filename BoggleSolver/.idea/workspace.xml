@@ -12,11 +12,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="BoggleSolver.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="BoggleSolver.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/BoggleSolver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="122">
-              <caret line="92" column="9" lean-forward="true" selection-start-line="92" selection-start-column="9" selection-end-line="92" selection-end-column="9" />
+            <state relative-caret-position="-864">
+              <caret line="21" column="13" lean-forward="true" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -62,7 +62,7 @@
           <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
-      <file leaf-file-name="board-my-board.txt" pinned="false" current-in-tab="true">
+      <file leaf-file-name="board-my-board.txt" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/boggle/board-my-board.txt">
           <provider selected="true" editor-type-id="text-editor">
             <state>
@@ -118,8 +118,8 @@
         <option value="$PROJECT_DIR$/src/Main.java" />
         <option value="$PROJECT_DIR$/src/boggle/BoggleGame.java" />
         <option value="$PROJECT_DIR$/src/boggle/BoggleSolver.java" />
-        <option value="$PROJECT_DIR$/src/BoggleSolver.java" />
         <option value="$PROJECT_DIR$/boggle/board-my-board.txt" />
+        <option value="$PROJECT_DIR$/src/BoggleSolver.java" />
       </list>
     </option>
   </component>
@@ -143,11 +143,6 @@
             <path>
               <item name="BoggleSolver" type="b2602c69:ProjectViewProjectNode" />
               <item name="BoggleSolver" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="BoggleSolver" type="b2602c69:ProjectViewProjectNode" />
-              <item name="BoggleSolver" type="462c0819:PsiDirectoryNode" />
-              <item name="boggle" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="BoggleSolver" type="b2602c69:ProjectViewProjectNode" />
@@ -198,7 +193,7 @@
     <configuration name="BoggleSolver" type="Application" factoryName="Application" temporary="true">
       <option name="MAIN_CLASS_NAME" value="BoggleSolver" />
       <module name="BoggleSolver" />
-      <option name="PROGRAM_PARAMETERS" value="dictionary-yawl.txt board-my-board.txt" />
+      <option name="PROGRAM_PARAMETERS" value="dictionary-yawl.txt board-points26539.txt" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/boggle" />
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
@@ -251,7 +246,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="64" y="-11" width="1217" height="1036" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -262,12 +256,12 @@
       <window_info anchor="right" id="Capture Analysis" order="3" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="right" id="Maven Projects" order="3" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.4143167" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.2548807" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.27440348" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.63991326" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.33744857" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17530864" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.329718" />
       <window_info anchor="bottom" id="ANTLR Preview" order="7" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -618,16 +612,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/BoggleSolver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="122">
-          <caret line="92" column="9" lean-forward="true" selection-start-line="92" selection-start-column="9" selection-end-line="92" selection-end-column="9" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/boggle/board-noon.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -635,6 +619,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret selection-end-line="4" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/BoggleSolver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-864">
+          <caret line="21" column="13" lean-forward="true" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
