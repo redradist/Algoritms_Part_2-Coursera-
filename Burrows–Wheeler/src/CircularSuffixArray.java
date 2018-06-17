@@ -52,48 +52,9 @@ public class CircularSuffixArray {
             startOfPerfixes.add(new CharEntry(s, index));
         }
         sortInRange(0, s.length());
-//        for (prefixIndex = 0; prefixIndex < s.length(); ++prefixIndex) {
-//            printArray();
-//            int fromIndex = 0;
-//            int toIndex = s.length();
-//            if (prefixIndex == 0) {
-//            } else {
-//                int startSubIndex = 0;
-//                prefixIndex -= 1;
-//                StringBuilder strToSearch = new StringBuilder();
-//                for (CharEntry ch : startOfPerfixes) {
-//                    strToSearch.append(ch.getChar());
-//                }
-//                prefixIndex += 1;
-//                while (startSubIndex < s.length()) {
-//                    prefixIndex -= 1;
-//                    int endSubIndex = startSubIndex + 1;
-//                    while (endSubIndex < s.length()) {
-//                        if (startOfPerfixes.get(startSubIndex).getChar() != startOfPerfixes.get(endSubIndex).getChar()) {
-//                            break;
-//                        }
-//                        ++endSubIndex;
-//                    }
-//                    prefixIndex += 1;
-//                    if ((endSubIndex - startSubIndex) > 1) {
-//                        sortInRange(startSubIndex, endSubIndex);
-//                        startSubIndex = endSubIndex;
-//                    } else {
-//                        ++startSubIndex;
-//                    }
-//                }
-//            }
-//        }
-//        prefixIndex = 0;
     }
 
-    private void sortInRange(int fromIndex, int toIndex) {
-        CharEntry[] arrayToSort = startOfPerfixes.subList(fromIndex, toIndex)
-                                                 .toArray(new CharEntry[toIndex-fromIndex]);
-        Merge.sort(arrayToSort);
-        for (int index = fromIndex; index < toIndex; ++index) {
-            startOfPerfixes.set(index, arrayToSort[index-fromIndex]);
-        }
+    private void sortNextLevel(int fromIndex, int toIndex) {
         int startSubIndex = fromIndex;
         StringBuilder strToSearch = new StringBuilder();
         for (CharEntry ch : startOfPerfixes) {
@@ -116,6 +77,16 @@ public class CircularSuffixArray {
             }
             prefixIndex -= 1;
         }
+    }
+
+    private void sortInRange(int fromIndex, int toIndex) {
+        CharEntry[] arrayToSort = startOfPerfixes.subList(fromIndex, toIndex)
+                                                 .toArray(new CharEntry[toIndex-fromIndex]);
+        Merge.sort(arrayToSort);
+        for (int index = fromIndex; index < toIndex; ++index) {
+            startOfPerfixes.set(index, arrayToSort[index-fromIndex]);
+        }
+        sortNextLevel(fromIndex, toIndex);
     }
 
     private void printArray() {
@@ -147,9 +118,5 @@ public class CircularSuffixArray {
         String orig = "ABRACADABRA!";
         CircularSuffixArray array = new CircularSuffixArray(orig);
         array.printArray();
-        for (int index = 0; index < orig.length(); ++index) {
-            StdOut.println(String.format("origin index %d vs sorted index %d",
-                                          index, array.index(index)));
-        }
     }
 }
