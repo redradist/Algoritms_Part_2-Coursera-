@@ -1,4 +1,3 @@
-import edu.princeton.cs.algs4.Merge;
 import edu.princeton.cs.algs4.Quick;
 import edu.princeton.cs.algs4.StdOut;
 
@@ -6,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CircularSuffixArray {
-    class CharEntry implements Comparable<CharEntry> {
+    private class CharEntry implements Comparable<CharEntry> {
         private final String orig;
         private final int realIndex;
 
@@ -60,10 +59,6 @@ public class CircularSuffixArray {
 
     private void sortNextLevel(int fromIndex, int toIndex) {
         int startSubIndex = fromIndex;
-        StringBuilder strToSearch = new StringBuilder();
-        for (CharEntry ch : startOfPerfixes) {
-            strToSearch.append(ch.getChar());
-        }
         while (startSubIndex < toIndex) {
             int endSubIndex = startSubIndex + 1;
             while (endSubIndex < toIndex) {
@@ -86,11 +81,38 @@ public class CircularSuffixArray {
     private void sortInRange(int fromIndex, int toIndex) {
         CharEntry[] arrayToSort = startOfPerfixes.subList(fromIndex, toIndex)
                                                  .toArray(new CharEntry[toIndex-fromIndex]);
-        Merge.sort(arrayToSort);
+        Quick.sort(arrayToSort);
+//        doSort(fromIndex, toIndex-1);
         for (int index = fromIndex; index < toIndex; ++index) {
             startOfPerfixes.set(index, arrayToSort[index-fromIndex]);
         }
         sortNextLevel(fromIndex, toIndex);
+    }
+
+    private void doSort(int start, int end) {
+        if (start >= end)
+            return;
+        int i = start, j = end;
+        int cur = i - (i - j) / 2;
+        while (i < j) {
+            while (i < cur && (startOfPerfixes.get(i).getChar() <= startOfPerfixes.get(cur).getChar())) {
+                i++;
+            }
+            while (j > cur && (startOfPerfixes.get(cur).getChar() <= startOfPerfixes.get(j).getChar())) {
+                j--;
+            }
+            if (i < j) {
+                CharEntry temp = startOfPerfixes.get(i);
+                startOfPerfixes.set(i, startOfPerfixes.get(j));
+                startOfPerfixes.set(j, temp);
+                if (i == cur)
+                    cur = j;
+                else if (j == cur)
+                    cur = i;
+            }
+        }
+        doSort(start, cur);
+        doSort(cur+1, end);
     }
 
     private void printArray() {
@@ -114,7 +136,7 @@ public class CircularSuffixArray {
 
     // returns index of ith sorted suffix
     public int index(int i) {
-        if (i < 0 && i >= startOfPerfixes.size()) {
+        if (i < 0 || i >= startOfPerfixes.size()) {
             throw new IllegalArgumentException(String.format("Argument i should be in range [%d, %d)",
                                                               0, startOfPerfixes.size()));
         }

@@ -1,4 +1,6 @@
-import edu.princeton.cs.algs4.*;
+import edu.princeton.cs.algs4.BinaryStdIn;
+import edu.princeton.cs.algs4.BinaryStdOut;
+import edu.princeton.cs.algs4.BinarySearchST;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +10,8 @@ public class BurrowsWheeler {
      * apply Burrows-Wheeler transform, reading from standard input and writing to standard output
      */
     public static void transform() {
-        if (!StdIn.isEmpty()) {
-            String originText = StdIn.readAll();
+        if (!BinaryStdIn.isEmpty()) {
+            String originText = BinaryStdIn.readString();
             CircularSuffixArray array = new CircularSuffixArray(originText);
             for (int index = 0; index < array.length(); ++index) {
                 if (array.index(index) == 0) {
@@ -64,7 +66,8 @@ public class BurrowsWheeler {
                     break;
                 }
             }
-            StdOut.print(originString.toString());
+            BinaryStdOut.write(originString.toString());
+            BinaryStdOut.flush();
         }
     }
 

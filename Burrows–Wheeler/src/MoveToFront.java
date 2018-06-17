@@ -1,8 +1,6 @@
-import edu.princeton.cs.algs4.*;
+import edu.princeton.cs.algs4.BinaryStdIn;
+import edu.princeton.cs.algs4.BinaryStdOut;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,18 +13,17 @@ public class MoveToFront {
         for (int i = 0; i < 256; ++i) {
             sequence.add((char) i);
         }
-        while (!StdIn.isEmpty()) {
-            char readCh = StdIn.readChar();
+        while (!BinaryStdIn.isEmpty()) {
+            char readCh = BinaryStdIn.readChar();
             char pos = 0;
             for (Character seqCh : sequence) {
                 if (readCh == seqCh) {
                     BinaryStdOut.write(pos);
+                    sequence.add(0, sequence.remove(pos));
                     break;
                 }
                 ++pos;
             }
-            char foundCh = sequence.remove(pos);
-            sequence.add(0, foundCh);
         }
         BinaryStdOut.flush();
     }
@@ -46,7 +43,7 @@ public class MoveToFront {
             int pos = 0;
             for (Character seqCh : sequence) {
                 if (pos == posCh) {
-                    StdOut.print(seqCh);
+                    BinaryStdOut.write(seqCh);
                     break;
                 }
                 ++pos;
@@ -54,6 +51,7 @@ public class MoveToFront {
             char foundCh = sequence.remove(pos);
             sequence.add(0, foundCh);
         }
+        BinaryStdOut.flush();
     }
 
     /**
