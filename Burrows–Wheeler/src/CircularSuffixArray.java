@@ -1,0 +1,155 @@
+import edu.princeton.cs.algs4.Merge;
+import edu.princeton.cs.algs4.Quick;
+import edu.princeton.cs.algs4.StdOut;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class CircularSuffixArray {
+    class CharEntry implements Comparable<CharEntry> {
+        private final String orig;
+        private final int realIndex;
+
+        CharEntry(String orig, int index) {
+            this.orig = orig;
+            this.realIndex = index;
+        }
+
+        private int getIndex() {
+            return (this.realIndex + prefixIndex) % orig.length();
+        }
+
+        private char getChar() {
+            return orig.charAt(getIndex());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return this == o || (o instanceof CharEntry && this.getChar() == ((CharEntry)o).getChar()) ;
+        }
+
+        @Override
+        public int compareTo(CharEntry o) {
+            int result = 0;
+            if (!this.equals(o)) {
+                if (this.getChar() > o.getChar()) {
+                    result = 1;
+                } else if (this.getChar() < o.getChar()) {
+                    result = -1;
+
+                }
+            }
+            return result;
+        }
+    }
+
+    private List<CharEntry> startOfPerfixes = new ArrayList<>();
+    private int prefixIndex = 0;
+
+    // circular suffix array of s
+    public CircularSuffixArray(String s) {
+        for (int index = 0; index < s.length(); ++index) {
+            startOfPerfixes.add(new CharEntry(s, index));
+        }
+        sortInRange(0, s.length());
+//        for (prefixIndex = 0; prefixIndex < s.length(); ++prefixIndex) {
+//            printArray();
+//            int fromIndex = 0;
+//            int toIndex = s.length();
+//            if (prefixIndex == 0) {
+//            } else {
+//                int startSubIndex = 0;
+//                prefixIndex -= 1;
+//                StringBuilder strToSearch = new StringBuilder();
+//                for (CharEntry ch : startOfPerfixes) {
+//                    strToSearch.append(ch.getChar());
+//                }
+//                prefixIndex += 1;
+//                while (startSubIndex < s.length()) {
+//                    prefixIndex -= 1;
+//                    int endSubIndex = startSubIndex + 1;
+//                    while (endSubIndex < s.length()) {
+//                        if (startOfPerfixes.get(startSubIndex).getChar() != startOfPerfixes.get(endSubIndex).getChar()) {
+//                            break;
+//                        }
+//                        ++endSubIndex;
+//                    }
+//                    prefixIndex += 1;
+//                    if ((endSubIndex - startSubIndex) > 1) {
+//                        sortInRange(startSubIndex, endSubIndex);
+//                        startSubIndex = endSubIndex;
+//                    } else {
+//                        ++startSubIndex;
+//                    }
+//                }
+//            }
+//        }
+//        prefixIndex = 0;
+    }
+
+    private void sortInRange(int fromIndex, int toIndex) {
+        CharEntry[] arrayToSort = startOfPerfixes.subList(fromIndex, toIndex)
+                                                 .toArray(new CharEntry[toIndex-fromIndex]);
+        Merge.sort(arrayToSort);
+        for (int index = fromIndex; index < toIndex; ++index) {
+            startOfPerfixes.set(index, arrayToSort[index-fromIndex]);
+        }
+        int startSubIndex = fromIndex;
+        StringBuilder strToSearch = new StringBuilder();
+        for (CharEntry ch : startOfPerfixes) {
+            strToSearch.append(ch.getChar());
+        }
+        while (startSubIndex < toIndex) {
+            int endSubIndex = startSubIndex + 1;
+            while (endSubIndex < toIndex) {
+                if (startOfPerfixes.get(startSubIndex).getChar() != startOfPerfixes.get(endSubIndex).getChar()) {
+                    break;
+                }
+                ++endSubIndex;
+            }
+            prefixIndex += 1;
+            if ((endSubIndex - startSubIndex) > 1) {
+                sortInRange(startSubIndex, endSubIndex);
+                startSubIndex = endSubIndex;
+            } else {
+                ++startSubIndex;
+            }
+            prefixIndex -= 1;
+        }
+    }
+
+    private void printArray() {
+        int originPrefixIndex = prefixIndex;
+        StdOut.println("CircularSuffixArray =>");
+        for (int index = 0; index < startOfPerfixes.size(); ++index) {
+            for (prefixIndex = 0; prefixIndex < startOfPerfixes.size(); ++prefixIndex) {
+                StdOut.print(String.format("%c", startOfPerfixes.get(index).getChar()));
+                StdOut.print(' ');
+            }
+            StdOut.print(String.format("%d", startOfPerfixes.get(index).realIndex));
+            StdOut.println();
+        }
+        prefixIndex = originPrefixIndex;
+    }
+
+    // length of s
+    public int length() {
+        return startOfPerfixes.size();
+    }
+
+    // returns index of ith sorted suffix
+    public int index(int i) {
+        return startOfPerfixes.get(i).realIndex;
+    }
+
+    // unit testing (required)
+    public static void main(String[] args) {
+        String orig = "ABRACADABRA!";
+        CircularSuffixArray array = new CircularSuffixArray(orig);
+        array.printArray();
+        for (int index = 0; index < orig.length(); ++index) {
+            StdOut.println(String.format("origin index %d vs sorted index %d",
+                                          index, array.index(index)));
+        }
+    }
+}
