@@ -17,11 +17,10 @@ public class MoveToFront {
         }
         while (!StdIn.isEmpty()) {
             char readCh = StdIn.readChar();
-            int pos = 0;
+            char pos = 0;
             for (Character seqCh : sequence) {
                 if (readCh == seqCh) {
-                    StdOut.print(pos);
-                    StdOut.print(' ');
+                    BinaryStdOut.write(pos);
                     break;
                 }
                 ++pos;
@@ -29,6 +28,7 @@ public class MoveToFront {
             char foundCh = sequence.remove(pos);
             sequence.add(0, foundCh);
         }
+        BinaryStdOut.flush();
     }
 
     /**
@@ -40,13 +40,9 @@ public class MoveToFront {
             sequence.add((char) i);
         }
 
-        while (!StdIn.isEmpty()) {
+        while (!BinaryStdIn.isEmpty()) {
             StringBuilder number = new StringBuilder();
-            char ch;
-            while(!StdIn.isEmpty() && (ch = StdIn.readChar()) != ' ') {
-                number.append(ch);
-            }
-            int posCh = Integer.parseInt(number.toString());
+            int posCh = BinaryStdIn.readChar();
             int pos = 0;
             for (Character seqCh : sequence) {
                 if (pos == posCh) {
