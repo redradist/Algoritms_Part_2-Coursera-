@@ -48,6 +48,10 @@ public class CircularSuffixArray {
 
     // circular suffix array of s
     public CircularSuffixArray(String s) {
+        if (s == null) {
+            throw new IllegalArgumentException("String should not be null !!");
+        }
+
         for (int index = 0; index < s.length(); ++index) {
             startOfPerfixes.add(new CharEntry(s, index));
         }
@@ -110,6 +114,10 @@ public class CircularSuffixArray {
 
     // returns index of ith sorted suffix
     public int index(int i) {
+        if (i < 0 && i >= startOfPerfixes.size()) {
+            throw new IllegalArgumentException(String.format("Argument i should be in range [%d, %d)",
+                                                              0, startOfPerfixes.size()));
+        }
         return startOfPerfixes.get(i).realIndex;
     }
 
