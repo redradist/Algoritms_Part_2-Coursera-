@@ -1,0 +1,3 @@
+#!/bin/sh
+
+java -cp /media/redra/Worker1/Library/Computer\ Science/__Coursera/Algoritms/__Software/algs4.jar:/media/redra/Worker1/Library/Computer\ Science/__Coursera/Algoritms/Algoritms_Part_2/Burrows–Wheeler/out/production/Burrows–Wheeler/ $@
