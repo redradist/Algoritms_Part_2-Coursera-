@@ -55,6 +55,7 @@ public class CircularSuffixArray {
             startOfPerfixes.add(new CharEntry(s, index));
         }
         sortInRange(0, s.length());
+        sortNextLevel(0, s.length());
     }
 
     private void sortNextLevel(int fromIndex, int toIndex) {
@@ -70,6 +71,7 @@ public class CircularSuffixArray {
             prefixIndex += 1;
             if ((endSubIndex - startSubIndex) > 1) {
                 sortInRange(startSubIndex, endSubIndex);
+                sortNextLevel(startSubIndex, endSubIndex);
                 startSubIndex = endSubIndex;
             } else {
                 ++startSubIndex;
@@ -82,37 +84,9 @@ public class CircularSuffixArray {
         CharEntry[] arrayToSort = startOfPerfixes.subList(fromIndex, toIndex)
                                                  .toArray(new CharEntry[toIndex-fromIndex]);
         Quick.sort(arrayToSort);
-//        doSort(fromIndex, toIndex-1);
         for (int index = fromIndex; index < toIndex; ++index) {
             startOfPerfixes.set(index, arrayToSort[index-fromIndex]);
         }
-        sortNextLevel(fromIndex, toIndex);
-    }
-
-    private void doSort(int start, int end) {
-        if (start >= end)
-            return;
-        int i = start, j = end;
-        int cur = i - (i - j) / 2;
-        while (i < j) {
-            while (i < cur && (startOfPerfixes.get(i).getChar() <= startOfPerfixes.get(cur).getChar())) {
-                i++;
-            }
-            while (j > cur && (startOfPerfixes.get(cur).getChar() <= startOfPerfixes.get(j).getChar())) {
-                j--;
-            }
-            if (i < j) {
-                CharEntry temp = startOfPerfixes.get(i);
-                startOfPerfixes.set(i, startOfPerfixes.get(j));
-                startOfPerfixes.set(j, temp);
-                if (i == cur)
-                    cur = j;
-                else if (j == cur)
-                    cur = i;
-            }
-        }
-        doSort(start, cur);
-        doSort(cur+1, end);
     }
 
     private void printArray() {
