@@ -57,16 +57,14 @@ public class BurrowsWheeler {
                     next[index++] = indexes.remove(0);
                 }
             }
-            StringBuilder originString = new StringBuilder();
             int indexToHandle = numOriginString;
             while (true) {
                 indexToHandle = next[indexToHandle];
-                originString.append(sortedString.charAt(indexToHandle));
+                BinaryStdOut.write(sortedString.charAt(indexToHandle));
                 if (numOriginString == indexToHandle) {
                     break;
                 }
             }
-            BinaryStdOut.write(originString.toString());
             BinaryStdOut.flush();
         }
     }
