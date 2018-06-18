@@ -55,37 +55,38 @@ public class CircularSuffixArray {
             startOfPerfixes.add(new CharEntry(s, index));
         }
         sortInRange(0, s.length());
-        sortNextLevel(0, s.length());
     }
 
-    private void sortNextLevel(int fromIndex, int toIndex) {
-        int startSubIndex = fromIndex;
-        while (startSubIndex < toIndex) {
-            int endSubIndex = startSubIndex + 1;
-            while (endSubIndex < toIndex) {
-                if (startOfPerfixes.get(startSubIndex).getChar() != startOfPerfixes.get(endSubIndex).getChar()) {
-                    break;
-                }
-                ++endSubIndex;
-            }
-            prefixIndex += 1;
-            if ((endSubIndex - startSubIndex) > 1) {
-                sortInRange(startSubIndex, endSubIndex);
-                sortNextLevel(startSubIndex, endSubIndex);
-                startSubIndex = endSubIndex;
-            } else {
-                ++startSubIndex;
-            }
-            prefixIndex -= 1;
-        }
-    }
-
-    private void sortInRange(int fromIndex, int toIndex) {
+    private void sortInRange(final int fromIndex, final int toIndex) {
         CharEntry[] arrayToSort = startOfPerfixes.subList(fromIndex, toIndex)
                                                  .toArray(new CharEntry[toIndex-fromIndex]);
         Quick.sort(arrayToSort);
         for (int index = fromIndex; index < toIndex; ++index) {
             startOfPerfixes.set(index, arrayToSort[index-fromIndex]);
+        }
+        sortNextLevel(fromIndex, toIndex);
+    }
+
+    private void sortNextLevel(final int fromIndex, final int toIndex) {
+        if (prefixIndex < (startOfPerfixes.size() - 1)) {
+            int startSubIndex = fromIndex;
+            while (startSubIndex < toIndex) {
+                int endSubIndex = startSubIndex + 1;
+                while (endSubIndex < toIndex) {
+                    if (startOfPerfixes.get(startSubIndex).getChar() != startOfPerfixes.get(endSubIndex).getChar()) {
+                        break;
+                    }
+                    ++endSubIndex;
+                }
+                prefixIndex += 1;
+                if ((endSubIndex - startSubIndex) > 1) {
+                    sortInRange(startSubIndex, endSubIndex);
+                    startSubIndex = endSubIndex;
+                } else {
+                    ++startSubIndex;
+                }
+                prefixIndex -= 1;
+            }
         }
     }
 
