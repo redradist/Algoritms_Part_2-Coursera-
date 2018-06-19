@@ -37,7 +37,7 @@ public class BurrowsWheeler {
     public static void inverseTransform() {
         if (!BinaryStdIn.isEmpty()) {
             int numOriginString = BinaryStdIn.readInt();
-            BinarySearchST<Character, List<Integer>> st = new BinarySearchST<Character, List<Integer>>();
+            BinarySearchST<Character, List<Integer>> st = new BinarySearchST<>();
             StringBuilder sortedString = new StringBuilder();
             int index = 0;
             while (!BinaryStdIn.isEmpty()) {
@@ -53,8 +53,8 @@ public class BurrowsWheeler {
             index = 0;
             for (char ch : st.keys()) {
                 List<Integer> indexes = st.get(ch);
-                while (indexes.size() > 0) {
-                    next[index++] = indexes.remove(0);
+                for (int indx : indexes) {
+                    next[index++] = indx;
                 }
             }
             int numInverseChars = 0;
