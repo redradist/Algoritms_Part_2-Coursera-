@@ -57,11 +57,13 @@ public class BurrowsWheeler {
                     next[index++] = indexes.remove(0);
                 }
             }
+            int numInverseChars = 0;
             int indexToHandle = numOriginString;
             while (true) {
                 indexToHandle = next[indexToHandle];
                 BinaryStdOut.write(sortedString.charAt(indexToHandle));
-                if (numOriginString == indexToHandle) {
+                ++numInverseChars;
+                if (numInverseChars >= next.length) {
                     break;
                 }
             }
